@@ -15,7 +15,7 @@ const TEMPLATES = { 1: FlyerTemplate1, 2: FlyerTemplate2, 3: FlyerTemplate3, 4: 
 
 export default function StorePage() {
   const { slug } = useParams();
-  const { direction } = useLanguage();
+  const { language, direction } = useLanguage();
   const { t } = useTranslation();
   const [store, setStore] = useState(null);
   const [products, setProducts] = useState([]);
