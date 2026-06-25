@@ -16,7 +16,9 @@ export default async function handler(req, res) {
   await connectDB();
 
   const { id } = req.query;
-  const idFromPath = req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
+  const urlParts = req.url.split('?')[0].replace(/\/+$/, '').split('/');
+  const resourceIdx = urlParts.indexOf('products');
+  const idFromPath = resourceIdx !== -1 && urlParts.length > resourceIdx + 1 ? urlParts[resourceIdx + 1] : null;
   const productId = id || idFromPath;
   if (!productId) return res.status(400).json({ error: 'Product ID required' });
 
@@ -31,6 +33,7 @@ export default async function handler(req, res) {
 
     return res.status(200).json({ product });
   } catch (err) {
+    console.error('Public products error:', err);
     return res.status(500).json({ error: 'Server error', message: err.message });
   }
 }

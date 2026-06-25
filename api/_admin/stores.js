@@ -30,13 +30,16 @@ export default async function handler(req, res) {
   await connectDB();
 
   return adminAuth(req, res, async () => {
-    const storeId = req.query.id || req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
+    const urlParts = req.url.split('?')[0].replace(/\/+$/, '').split('/');
+    const resourceIdx = urlParts.indexOf('stores');
+    const idFromPath = resourceIdx !== -1 && urlParts.length > resourceIdx + 1 ? urlParts[resourceIdx + 1] : null;
+    const storeId = req.query.id || idFromPath;
 
     if (req.method === 'GET') {
-      if (storeId) {
-        return requirePermission('manage_stores')(req, res, () => handleGetStore(req, res, storeId));
+      if (!storeId) {
+        return requirePermission('manage_stores')(req, res, () => handleListStores(req, res));
       }
-      return requirePermission('manage_stores')(req, res, () => handleListStores(req, res));
+      return requirePermission('manage_stores')(req, res, () => handleGetStore(req, res, storeId));
     }
 
     if (req.method === 'POST') {
@@ -119,7 +122,7 @@ async function handleGetStore(req, res, storeId) {
     return res.status(200).json({
       ...store,
       productCount,
-      flyerCount: flyers,
+      flyerCount,
     });
   } catch (err) {
     return res.status(500).json({ error: 'Internal server error' });
