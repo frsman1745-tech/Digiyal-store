@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useParams } from 'react-router-dom';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -6,12 +6,21 @@ import ProductCard from '../../components/product/ProductCard';
 import SkeletonCard from '../../components/ui/SkeletonCard';
 import EmptyState from '../../components/ui/EmptyState';
 
+const TEMPLATES = {
+  1: lazy(() => import('../../components/flyer/FlyerTemplate1')),
+  2: lazy(() => import('../../components/flyer/FlyerTemplate2')),
+  3: lazy(() => import('../../components/flyer/FlyerTemplate3')),
+  4: lazy(() => import('../../components/flyer/FlyerTemplate4')),
+  5: lazy(() => import('../../components/flyer/FlyerTemplate5')),
+};
+
 export default function StorePage() {
   const { slug } = useParams();
   const { direction } = useLanguage();
   const { t } = useTranslation();
   const [store, setStore] = useState(null);
   const [products, setProducts] = useState([]);
+  const [flyer, setFlyer] = useState(null);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
@@ -25,6 +34,7 @@ export default function StorePage() {
           api.get(`/public/stores/${slug}/products`),
         ]);
         setStore(storeRes.data.store || storeRes.data);
+        setFlyer(storeRes.data.activeFlyer || productsRes.data.flyer || null);
         setProducts(productsRes.data.products || []);
       } catch {
         setStore(null);
@@ -110,6 +120,17 @@ export default function StorePage() {
             {t('store.share')}
           </button>
         </div>
+
+        {flyer && (
+          <div className="mt-4 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+            <Suspense fallback={<div className="h-48 bg-gray-100 animate-pulse" />}>
+              {(() => {
+                const FlyerComp = TEMPLATES[flyer.templateId];
+                return FlyerComp ? <FlyerComp store={store} products={products} language={language} /> : null;
+              })()}
+            </Suspense>
+          </div>
+        )}
 
         {store.offerStart && store.offerEnd && (
           <p className="mt-4 text-sm text-gray-500">
