@@ -6,13 +6,14 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  const url = config.url || '';
   const storeToken = (() => {
     try { return localStorage.getItem('store_token'); } catch {}
   })();
   const adminToken = (() => {
     try { return localStorage.getItem('admin_token'); } catch {}
   })();
-  const token = adminToken || storeToken;
+  const token = url.startsWith('/store/') ? storeToken : url.startsWith('/admin/') ? adminToken : (adminToken || storeToken);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
