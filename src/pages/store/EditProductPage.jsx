@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from '../../hooks/useTranslation';
-import { compressImage } from '../../utils/imageCompressor';
+import { compressImage, fileToDataUrl } from '../../utils/imageCompressor';
 import api from '../../utils/api';
 import { Upload, X, Save, AlertCircle, ChevronDown, ChevronUp, Package } from 'lucide-react';
 import BackButton from '../../components/ui/BackButton';
@@ -90,9 +90,9 @@ export default function EditProductPage() {
     if (!file) return;
     try {
       const compressed = await compressImage(file);
-      setCompressedSize((compressed.size / 1024).toFixed(1));
+      setCompressedSize((compressed.file.size / 1024).toFixed(1));
       setImageFile(compressed);
-      setImagePreview(URL.createObjectURL(compressed));
+      setImagePreview(compressed.dataUrl);
     } catch {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
@@ -103,9 +103,8 @@ export default function EditProductPage() {
     if (!imageFile) return;
     setUploading(true);
     try {
-      const fd = new FormData();
-      fd.append('image', imageFile);
-      const res = await api.post('/store/upload', fd);
+      const dataUrl = imageFile.dataUrl || await fileToDataUrl(imageFile);
+      const res = await api.post('/store/upload', { image: dataUrl });
       setImageUrl(res.data.url || res.data.imageUrl);
     } catch { setError('فشل رفع الصورة'); }
     setUploading(false);

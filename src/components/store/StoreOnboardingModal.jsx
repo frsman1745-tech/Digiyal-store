@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from '../../hooks/useTranslation';
-import { compressImage } from '../../utils/imageCompressor';
+import { compressImage, fileToDataUrl } from '../../utils/imageCompressor';
 import api from '../../utils/api';
 import { Check, Upload, X, Image, Calendar, Layout } from 'lucide-react';
 
@@ -33,9 +33,7 @@ export default function StoreOnboardingModal({ open, onComplete }) {
     setLogoPreview(URL.createObjectURL(file));
     try {
       const compressed = await compressImage(file);
-      const fd = new FormData();
-      fd.append('image', compressed);
-      const res = await api.post('/store/upload', fd);
+      const res = await api.post('/store/upload', { image: compressed.dataUrl });
       setProfile((p) => ({ ...p, logo: res.data.url || res.data.imageUrl }));
     } catch {}
   };
@@ -46,9 +44,7 @@ export default function StoreOnboardingModal({ open, onComplete }) {
     setProductPreview(URL.createObjectURL(file));
     try {
       const compressed = await compressImage(file);
-      const fd = new FormData();
-      fd.append('image', compressed);
-      const res = await api.post('/store/upload', fd);
+      const res = await api.post('/store/upload', { image: compressed.dataUrl });
       setProduct((p) => ({ ...p, image: res.data.url || res.data.imageUrl }));
     } catch {}
   };

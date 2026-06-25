@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { useLanguage } from '../../context/LanguageContext';
 import { useTranslation } from '../../hooks/useTranslation';
-import { compressImage } from '../../utils/imageCompressor';
+import { compressImage, fileToDataUrl } from '../../utils/imageCompressor';
 import api from '../../utils/api';
 import { Upload, X, Image, Save, AlertCircle, ChevronDown, ChevronUp, Package, Percent, Layers } from 'lucide-react';
 import BackButton from '../../components/ui/BackButton';
@@ -58,9 +58,9 @@ export default function AddProductPage() {
     setOriginalSize((file.size / 1024).toFixed(1));
     try {
       const compressed = await compressImage(file);
-      setCompressedSize((compressed.size / 1024).toFixed(1));
+      setCompressedSize((compressed.file.size / 1024).toFixed(1));
       setImageFile(compressed);
-      setImagePreview(URL.createObjectURL(compressed));
+      setImagePreview(compressed.dataUrl);
     } catch {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
@@ -73,13 +73,8 @@ export default function AddProductPage() {
     setUploading(true);
     setUploadProgress(0);
     try {
-      const fd = new FormData();
-      fd.append('image', imageFile);
-      const res = await api.post('/store/upload', fd, {
-        onUploadProgress: (e) => {
-          setUploadProgress(Math.round((e.loaded / e.total) * 100));
-        },
-      });
+      const dataUrl = imageFile.dataUrl || await fileToDataUrl(imageFile);
+      const res = await api.post('/store/upload', { image: dataUrl });
       setImageUrl(res.data.url || res.data.imageUrl);
     } catch {
       setError('فشل رفع الصورة');

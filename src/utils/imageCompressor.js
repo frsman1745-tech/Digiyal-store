@@ -23,3 +23,12 @@ export async function compressImage(file, onProgress) {
     name: compressedFile.name || file.name.replace(/\.[^.]+$/, '.webp'),
   };
 }
+
+export function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
