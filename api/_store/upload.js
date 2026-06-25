@@ -3,13 +3,15 @@ import { storeAuth } from '../_middleware/auth.js';
 import Store from '../models/Store.js';
 import cloudinary from 'cloudinary';
 
-const cloudinaryV2 = cloudinary.v2;
-
-cloudinaryV2.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+function getCloudinary() {
+  const v2 = cloudinary.v2;
+  v2.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+  return v2;
+}
 
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -26,6 +28,7 @@ export default async function handler(req, res) {
 
   return storeAuth(req, res, async () => {
     try {
+      const cloudinaryV2 = getCloudinary();
       const { image, folder, publicId } = req.body;
 
       if (!image) {
