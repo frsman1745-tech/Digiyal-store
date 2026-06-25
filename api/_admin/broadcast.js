@@ -12,32 +12,55 @@ function cors(res) {
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
+function getIdFromUrl(url) {
+  const parts = url.split('?')[0].replace(/\/+$/, '').split('/');
+  return parts[parts.length - 1];
+}
+
 export default async function handler(req, res) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   await connectDB();
 
   return adminAuth(req, res, async () => {
+    const subPath = getIdFromUrl(req.url);
+
+    if (req.method === 'GET' && subPath === 'preview') {
+      return res.status(200).json({ preview: '', totalStores: 0, recipientCount: 0 });
+    }
+
+    if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
     return requirePermission('send_broadcast')(req, res, async () => {
       try {
         if (!resend) {
           return res.status(500).json({ error: 'Resend API key not configured' });
         }
 
-        const { subject, htmlContent, textContent, filterPlan, filterStatus } = req.body;
+        const { subject, htmlContent, textContent, filterPlan, filterStatus, body, target } = req.body;
+        const finalHtml = htmlContent || body || '';
+        const finalText = textContent || '';
+        let finalFilterPlan = filterPlan;
+        let finalFilterStatus = filterStatus;
+        if (target && !filterPlan && !filterStatus) {
+          if (['trial', 'basic', 'advanced', 'pro', 'custom'].includes(target)) {
+            finalFilterPlan = target;
+          } else if (target === 'approved') {
+            finalFilterStatus = 'approved';
+          }
+        }
 
         if (!subject || (!htmlContent && !textContent)) {
           return res.status(400).json({ error: 'Subject and content are required' });
         }
 
         const storeFilter = {};
-        if (filterPlan && ['trial', 'basic', 'advanced', 'pro', 'custom'].includes(filterPlan)) {
-          storeFilter.plan = filterPlan;
+        if (finalFilterPlan && ['trial', 'basic', 'advanced', 'pro', 'custom'].includes(finalFilterPlan)) {
+          storeFilter.plan = finalFilterPlan;
         }
-        if (filterStatus && ['pending', 'approved', 'rejected', 'suspended'].includes(filterStatus)) {
-          storeFilter.status = filterStatus;
+        if (finalFilterStatus && ['pending', 'approved', 'rejected', 'suspended'].includes(finalFilterStatus)) {
+          storeFilter.status = finalFilterStatus;
         }
 
         const stores = await Store.find(storeFilter)
@@ -64,8 +87,8 @@ export default async function handler(req, res) {
                 from: fromEmail,
                 to: email,
                 subject,
-                html: htmlContent || '',
-                text: textContent || '',
+                html: finalHtml,
+                text: finalText,
               }))
             );
             sent += batch.length;
@@ -86,8 +109,8 @@ export default async function handler(req, res) {
             subject,
             recipientCount: totalStores,
             sent,
-            filterPlan: filterPlan || 'all',
-            filterStatus: filterStatus || 'all',
+            filterPlan: finalFilterPlan || 'all',
+            filterStatus: finalFilterStatus || 'all',
             errors: errors.length > 0 ? errors : undefined,
           },
           ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress || '',

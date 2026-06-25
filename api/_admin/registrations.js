@@ -136,7 +136,7 @@ async function handleUpdateRegistration(req, res, regId) {
         'contact.email': registration.email,
         'contact.phone': registration.phone,
         'location.city': registration.city,
-        category: registration.storeType || 'other',
+        category: ['grocery', 'supermarket', 'minimarket', 'organic', 'other'].includes(registration.storeType) ? registration.storeType : 'other',
         status: 'approved',
         plan: selectedPlan,
         productLimit: finalLimit,

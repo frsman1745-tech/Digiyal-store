@@ -103,6 +103,7 @@ export default async function handler(req, res) {
         registrationStatusDistribution: registrationStatusDist,
       });
     } catch (err) {
+      console.error('Stats error:', err);
       return res.status(500).json({ error: 'Server error', message: err.message });
     }
   });

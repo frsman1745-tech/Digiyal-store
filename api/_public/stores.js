@@ -16,15 +16,19 @@ export default async function handler(req, res) {
 
   await connectDB();
 
-  const { id } = req.query;
   const pathParts = req.url.split('?')[0].replace(/\/+$/, '').split('/');
   const secondLast = pathParts[pathParts.length - 2];
+  const lastPath = pathParts[pathParts.length - 1];
+  const { id } = req.query;
+  const storeId = id || lastPath;
 
-  if (secondLast === 'stores' && id && pathParts[pathParts.length - 1] === 'products') {
+  if (storeId && secondLast === 'stores' && lastPath === 'products') {
+    req.query.id = storeId;
     return handleStoreProducts(req, res);
   }
 
-  if (id) {
+  if (storeId && secondLast === 'stores') {
+    req.query.id = storeId;
     return handleStoreDetail(req, res);
   }
 

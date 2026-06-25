@@ -32,30 +32,33 @@ export default async function handler(req, res) {
 
     if (req.method === 'PUT') {
       try {
-        const { templateId, startDate, endDate, status, productIds } = req.body;
+        const { templateId, startDate, endDate, status, productIds, selectedTemplate, currentFlyerStart, currentFlyerEnd } = req.body;
+        const tId = templateId || selectedTemplate;
+        const sDate = startDate || currentFlyerStart;
+        const eDate = endDate || currentFlyerEnd;
 
         const updateData = {};
-        if (templateId !== undefined) {
-          if (templateId < 1 || templateId > 5) {
+        if (tId !== undefined) {
+          if (tId < 1 || tId > 5) {
             return res.status(400).json({ error: 'Template must be between 1 and 5' });
           }
-          updateData.selectedTemplate = templateId;
+          updateData.selectedTemplate = tId;
         }
 
-        if (startDate !== undefined) updateData.currentFlyerStart = startDate;
-        if (endDate !== undefined) updateData.currentFlyerEnd = endDate;
+        if (sDate !== undefined) updateData.currentFlyerStart = sDate;
+        if (eDate !== undefined) updateData.currentFlyerEnd = eDate;
 
         if (Object.keys(updateData).length > 0) {
           await Store.findByIdAndUpdate(req.storeId, { $set: updateData });
         }
 
-        if (templateId && startDate && endDate) {
+        if (tId && sDate && eDate) {
           const flyerData = {
             storeId: req.storeId,
-            templateId,
-            startDate: new Date(startDate),
-            endDate: new Date(endDate),
-            status: status || (new Date(startDate) <= new Date() && new Date(endDate) >= new Date() ? 'active' : 'scheduled'),
+            templateId: tId,
+            startDate: new Date(sDate),
+            endDate: new Date(eDate),
+            status: status || (new Date(sDate) <= new Date() && new Date(eDate) >= new Date() ? 'active' : 'scheduled'),
             products: productIds || [],
           };
 

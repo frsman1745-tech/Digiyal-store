@@ -43,8 +43,10 @@ export default async function handler(req, res) {
       return requirePermission('manage_reviews')(req, res, async () => {
         try {
           const { id } = req.query;
-          if (!id) return res.status(400).json({ error: 'Review ID required' });
-          const review = await Review.findByIdAndDelete(id);
+          const idFromPath = req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
+          const reviewId = id || idFromPath;
+          if (!reviewId) return res.status(400).json({ error: 'Review ID required' });
+          const review = await Review.findByIdAndDelete(reviewId);
           if (!review) return res.status(404).json({ error: 'Review not found' });
           return res.status(200).json({ message: 'Review deleted' });
         } catch (err) {

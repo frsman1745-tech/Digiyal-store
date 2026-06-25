@@ -25,7 +25,7 @@ export default async function handler(req, res) {
           return res.status(400).json({ error: 'Email and password required' });
         }
 
-        const account = await StoreAccount.findOne({ email: email.toLowerCase().trim() }).lean();
+        const account = await StoreAccount.findOne({ email: email.toLowerCase().trim() }).select('+passwordHash').lean();
         if (!account) {
           return res.status(401).json({ error: 'Invalid credentials' });
         }

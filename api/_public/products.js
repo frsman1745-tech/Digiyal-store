@@ -16,14 +16,16 @@ export default async function handler(req, res) {
   await connectDB();
 
   const { id } = req.query;
-  if (!id) return res.status(400).json({ error: 'Product ID required' });
+  const idFromPath = req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
+  const productId = id || idFromPath;
+  if (!productId) return res.status(400).json({ error: 'Product ID required' });
 
   try {
-    const product = await Product.findById(id).lean();
+    const product = await Product.findById(productId).lean();
     if (!product) return res.status(404).json({ error: 'Product not found' });
 
     if (req.query.source === 'qr') {
-      await Product.findByIdAndUpdate(id, { $inc: { qrScanCount: 1 } });
+      await Product.findByIdAndUpdate(productId, { $inc: { qrScanCount: 1 } });
       await Store.findByIdAndUpdate(product.storeId, { $inc: { qrScanCount: 1 } });
     }
 

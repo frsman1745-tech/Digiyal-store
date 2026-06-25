@@ -48,7 +48,7 @@ export default async function handler(req, res) {
   await connectDB();
 
   return storeAuth(req, res, async () => {
-    const productId = req.query.id;
+    const productId = req.query.id || req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
 
     if (req.method === 'GET' && productId && req.url.includes('/qr')) {
       return handleGetProductQR(req, res);
@@ -233,7 +233,7 @@ async function handleDeleteProduct(req, res, productId) {
 
 async function handleGetProductQR(req, res, productId) {
   try {
-    const productId = req.query.id;
+    productId = productId || req.query.id;
     const product = await Product.findOne({ _id: productId, storeId: req.storeId }).lean();
     if (!product) return res.status(404).json({ error: 'Product not found' });
 

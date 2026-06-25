@@ -55,6 +55,8 @@ const storeSchema = new mongoose.Schema({
   latitude: { type: Number, default: null },
   longitude: { type: Number, default: null },
   slugLastChangedAt: { type: Date, default: null },
+  suspendReason: { type: String, default: '' },
+  suspendedAt: { type: Date, default: null },
 }, {
   timestamps: true,
 });

@@ -4,6 +4,7 @@ import { requirePermission } from '../_middleware/permissions.js';
 import Store from '../_models/Store.js';
 import StoreAccount from '../_models/StoreAccount.js';
 import Product from '../_models/Product.js';
+import Flyer from '../_models/Flyer.js';
 import AdminLog from '../_models/AdminLog.js';
 import bcrypt from 'bcryptjs';
 
@@ -29,7 +30,12 @@ export default async function handler(req, res) {
   await connectDB();
 
   return adminAuth(req, res, async () => {
+    const storeId = req.query.id || req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
+
     if (req.method === 'GET') {
+      if (storeId) {
+        return requirePermission('manage_stores')(req, res, () => handleGetStore(req, res, storeId));
+      }
       return requirePermission('manage_stores')(req, res, () => handleListStores(req, res));
     }
 
@@ -37,7 +43,6 @@ export default async function handler(req, res) {
       return requirePermission('manage_stores')(req, res, () => handleCreateStore(req, res));
     }
 
-    const storeId = req.query.id || req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
     if (!storeId) return res.status(400).json({ error: 'Store ID required' });
 
     if (req.method === 'PUT') {
@@ -96,6 +101,25 @@ async function handleListStores(req, res) {
     return res.status(200).json({
       stores: storesWithStats,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
+    });
+  } catch (err) {
+    console.error('List stores error:', err);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+}
+
+async function handleGetStore(req, res, storeId) {
+  try {
+    const store = await Store.findById(storeId).lean();
+    if (!store) return res.status(404).json({ error: 'Store not found' });
+
+    const productCount = await Product.countDocuments({ storeId });
+    const flyerCount = await Flyer.countDocuments({ storeId });
+
+    return res.status(200).json({
+      ...store,
+      productCount,
+      flyerCount: flyers,
     });
   } catch (err) {
     return res.status(500).json({ error: 'Internal server error' });
@@ -166,7 +190,7 @@ async function handleUpdateStore(req, res, storeId) {
     const allowedFields = [
       'name', 'nameEn', 'status', 'isFeatured', 'featuredOrder', 'plan',
       'productLimit', 'monthlyPrice', 'category', 'customColors', 'slug',
-      'selectedTemplate', 'seasonalTemplates', 'suspendReason', 'suspendedAt',
+      'selectedTemplate', 'suspendReason', 'suspendedAt',
     ];
 
     const filtered = {};
@@ -174,12 +198,6 @@ async function handleUpdateStore(req, res, storeId) {
       if (updates[key] !== undefined) {
         filtered[key] = updates[key];
       }
-    }
-
-    if (updates.seasonalTemplates) {
-      filtered['seasonalTemplates.ramadan'] = updates.seasonalTemplates.ramadan;
-      filtered['seasonalTemplates.eid'] = updates.seasonalTemplates.eid;
-      filtered['seasonalTemplates.nationalDay'] = updates.seasonalTemplates.nationalDay;
     }
 
     const store = await Store.findByIdAndUpdate(storeId, { $set: filtered }, { new: true, runValidators: true }).lean();
@@ -197,6 +215,9 @@ async function handleUpdateStore(req, res, storeId) {
     return res.status(200).json({ store });
   } catch (err) {
     console.error('Update store error:', err);
+    if (err.code === 11000) {
+      return res.status(409).json({ error: 'Slug already taken' });
+    }
     return res.status(500).json({ error: 'Internal server error' });
   }
 }

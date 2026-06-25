@@ -16,8 +16,9 @@ export default function StoreDashboardPage() {
     const fetchStats = async () => {
       try {
         const { default: api } = await import('../../utils/api');
-        const res = await api.get('/store/dashboard');
-        setStats(res.data);
+        const res = await api.get('/store/stats');
+        const d = res.data;
+        setStats({ productsUsed: d.productsUsed || 0, limit: d.productLimit || 50, activeOffers: d.activeProducts || 0, storageUsed: (d.storageUsedMB || '0') + ' MB' });
       } catch {}
       setLoading(false);
     };

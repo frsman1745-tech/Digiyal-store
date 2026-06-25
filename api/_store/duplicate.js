@@ -21,7 +21,7 @@ export default async function handler(req, res) {
 
   return storeAuth(req, res, async () => {
     try {
-      const productId = req.query.id;
+      const productId = req.query.id || req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
 
       if (!productId) {
         return res.status(400).json({ error: 'Product ID is required' });

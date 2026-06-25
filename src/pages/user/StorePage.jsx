@@ -20,9 +20,12 @@ export default function StorePage() {
       setLoading(true);
       try {
         const { default: api } = await import('../../utils/api');
-        const res = await api.get(`/stores/${slug}`);
-        setStore(res.data.store || res.data);
-        setProducts(res.data.products || []);
+        const [storeRes, productsRes] = await Promise.all([
+          api.get(`/public/stores/${slug}`),
+          api.get(`/public/stores/${slug}/products`),
+        ]);
+        setStore(storeRes.data.store || storeRes.data);
+        setProducts(productsRes.data.products || []);
       } catch {
         setStore(null);
       }

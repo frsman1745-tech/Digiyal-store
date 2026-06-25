@@ -61,15 +61,17 @@ export default async function handler(req, res) {
       if (req.method === 'PUT') {
         try {
           const { id } = req.query;
-          if (!id) return res.status(400).json({ error: 'Admin ID required' });
-          if (id === req.adminId.toString()) {
+          const idFromPath = req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
+          const adminId = id || idFromPath;
+          if (!adminId) return res.status(400).json({ error: 'Admin ID required' });
+          if (adminId === req.adminId.toString()) {
             return res.status(400).json({ error: 'Cannot change your own role' });
           }
           const { role, name } = req.body;
           const update = {};
           if (role) update.role = role;
           if (name) update.name = name;
-          const admin = await Admin.findByIdAndUpdate(id, update, { new: true }).select('-passwordHash');
+          const admin = await Admin.findByIdAndUpdate(adminId, update, { new: true }).select('-passwordHash');
           if (!admin) return res.status(404).json({ error: 'Admin not found' });
           return res.status(200).json({ message: 'Admin updated', admin });
         } catch (err) {
@@ -81,11 +83,13 @@ export default async function handler(req, res) {
       if (req.method === 'DELETE') {
         try {
           const { id } = req.query;
-          if (!id) return res.status(400).json({ error: 'Admin ID required' });
-          if (id === req.adminId.toString()) {
+          const idFromPath = req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
+          const adminId = id || idFromPath;
+          if (!adminId) return res.status(400).json({ error: 'Admin ID required' });
+          if (adminId === req.adminId.toString()) {
             return res.status(400).json({ error: 'Cannot delete yourself' });
           }
-          const admin = await Admin.findByIdAndDelete(id);
+          const admin = await Admin.findByIdAndDelete(adminId);
           if (!admin) return res.status(404).json({ error: 'Admin not found' });
           return res.status(200).json({ message: 'Admin deleted' });
         } catch (err) {

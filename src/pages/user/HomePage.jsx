@@ -24,7 +24,7 @@ export default function HomePage() {
       setLoading(true);
       try {
         const { default: api } = await import('../../utils/api');
-        const res = await api.get('/stores');
+        const res = await api.get('/public/stores', { params: { limit: 50 } });
         const data = res.data?.stores || res.data?.data || res.data || [];
         setStores(Array.isArray(data) ? data : []);
       } catch {

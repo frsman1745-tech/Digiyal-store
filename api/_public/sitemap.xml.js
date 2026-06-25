@@ -17,24 +17,27 @@ function xmlSafe(str) {
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');
   res.setHeader('Cache-Control', 'public, max-age=3600');
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');
 
-  await connectDB();
+  try {
+    await connectDB();
 
-  const stores = await Store.find({ status: 'approved' })
-    .select('_id slug updatedAt')
-    .sort({ featuredOrder: 1 })
-    .lean();
+    const stores = await Store.find({ status: 'approved' })
+      .select('_id slug updatedAt')
+      .sort({ featuredOrder: 1 })
+      .lean();
 
-  const storeIds = stores.map(s => s._id);
-  const products = await Product.find({
-    storeId: { $in: storeIds },
-    isActive: true,
-    offerEndDate: { $gte: new Date() },
-  })
-    .select('_id updatedAt')
-    .lean();
+    const storeIds = stores.map(s => s._id);
+    const products = await Product.find({
+      storeId: { $in: storeIds },
+      isActive: true,
+      offerEndDate: { $gte: new Date() },
+    })
+      .select('_id updatedAt')
+      .lean();
 
-  const urls = [];
+    const urls = [];
 
   urls.push(`  <url>
     <loc>${xmlSafe(BASE_URL)}/</loc>
@@ -73,4 +76,9 @@ ${urls.join('\n')}
 </urlset>`;
 
   return res.status(200).send(sitemap);
+  } catch (err) {
+    console.error('Sitemap error:', err);
+    const fallback = `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>${xmlSafe(BASE_URL)}/</loc></url></urlset>`;
+    return res.status(200).send(fallback);
+  }
 }

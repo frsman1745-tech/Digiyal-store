@@ -23,7 +23,7 @@ export default function ProductPage() {
       setLoading(true);
       try {
         const { default: api } = await import('../../utils/api');
-        const res = await api.get(`/products/${id}`);
+        const res = await api.get(`/public/products/${id}`);
         const p = res.data.product || res.data;
         setProduct(p);
         if (p._id) {
