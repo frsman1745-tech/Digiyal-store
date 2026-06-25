@@ -13,20 +13,16 @@ export default async function handler(req, res) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  let rest = '';
-  const slug = req.query['...slug'] || req.query.slug;
-  if (Array.isArray(slug)) {
-    rest = slug.join('/');
-  } else if (typeof slug === 'string' && slug) {
-    rest = slug;
-  } else {
-    const url = (req.url || '').split('?')[0];
-    const m = url.match(/^\/api\/(.+)$/);
-    if (m) rest = m[1].replace(/\/+$/, '');
+  if (req.url === '/api/health' || req.url === '/health') {
+    if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+    return res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
   }
 
-  if (!rest) return res.status(404).json({ error: 'Not found' });
+  const url = (req.url || '').split('?')[0];
+  const m = url.match(/^\/api\/(.+)$/);
+  if (!m) return res.status(404).json({ error: 'Not found' });
 
+  const rest = m[1].replace(/\/+$/, '');
   const idx = rest.indexOf('/');
   const firstSegment = idx === -1 ? rest : rest.slice(0, idx);
   const restPath = idx === -1 ? '' : rest.slice(idx);
