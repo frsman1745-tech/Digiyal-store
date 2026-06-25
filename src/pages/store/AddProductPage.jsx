@@ -201,7 +201,7 @@ export default function AddProductPage() {
                     <input type="number" step="0.01" value={form.price}
                       onChange={(e) => setForm({ ...form, price: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500" />
-                    <span className="absolute inset-y-0 end-0 flex items-center pe-3 text-sm text-gray-500">ريال</span>
+                    <span className="absolute inset-y-0 end-0 flex items-center pe-3 text-sm text-gray-500">ليرة</span>
                   </div>
                 </div>
                 <div>
@@ -210,7 +210,7 @@ export default function AddProductPage() {
                     <input type="number" step="0.01" value={form.originalPrice}
                       onChange={(e) => setForm({ ...form, originalPrice: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500" />
-                    <span className="absolute inset-y-0 end-0 flex items-center pe-3 text-sm text-gray-500">ريال</span>
+                    <span className="absolute inset-y-0 end-0 flex items-center pe-3 text-sm text-gray-500">ليرة</span>
                   </div>
                   {form.originalPrice && (
                     <p className="text-xs text-gray-500 mt-1">سيظهر السعر الأصلي مشطوباً</p>

@@ -178,7 +178,7 @@ export default function StoreOnboardingModal({ open, onComplete }) {
               className="w-full px-4 py-2.5 rounded-xl border border-gray-300" placeholder={language === 'ar' ? 'اسم المنتج' : 'Product name'} />
 
             <input type="number" step="0.01" value={product.price} onChange={(e) => setProduct({ ...product, price: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-xl border border-gray-300" placeholder={language === 'ar' ? 'السعر (ريال)' : 'Price (SAR)'} />
+              className="w-full px-4 py-2.5 rounded-xl border border-gray-300" placeholder={language === 'ar' ? 'السعر (ليرة)' : 'Price (SYP)'} />
 
             <div onClick={() => document.getElementById('product-img-input')?.click()} className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center cursor-pointer">
               <input id="product-img-input" type="file" accept="image/*" onChange={handleProductImage} className="hidden" />
