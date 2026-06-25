@@ -146,7 +146,7 @@ async function handleCreateProduct(req, res) {
       isFeaturedOnFlyer: isFeaturedOnFlyer || false,
       flyerPosition: flyerPosition || 0,
       section: section || { sectionName: '', sectionOrder: 0 },
-      badges: badges || [],
+      badges: Array.isArray(badges) ? badges.map(b => typeof b === 'string' ? { type: b } : b) : [],
       bundleDeal: bundleDeal || {},
     };
 
@@ -184,6 +184,9 @@ async function handleUpdateProduct(req, res, productId) {
       if (updates[key] !== undefined) {
         filtered[key] = updates[key];
       }
+    }
+    if (filtered.badges && Array.isArray(filtered.badges)) {
+      filtered.badges = filtered.badges.map(b => typeof b === 'string' ? { type: b } : b);
     }
 
     if (updates.name && !updates.nameEn) {
