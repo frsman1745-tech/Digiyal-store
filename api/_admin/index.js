@@ -24,5 +24,5 @@ export default function route(path, req, res) {
   if (path.startsWith('/admin/broadcast')) return broadcastHandler(req, res);
   if (path.startsWith('/admin/stats')) return statsHandler(req, res);
   if (path === '/admin/seed') return seedHandler(req, res);
-  return res.status(404).json({ error: 'Not found' });
+  return res.status(404).json({ error: 'Not found', path });
 }

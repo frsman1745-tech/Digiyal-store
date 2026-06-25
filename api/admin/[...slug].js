@@ -22,5 +22,9 @@ export default async function handler(req, res) {
   }
   const path = '/admin/' + rest;
 
-  return router(path, req, res);
+  try {
+    return router(path, req, res);
+  } catch (err) {
+    return res.status(500).json({ error: 'Router error: ' + err.message, path, slug, url: req.url });
+  }
 }
