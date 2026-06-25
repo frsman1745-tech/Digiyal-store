@@ -12,26 +12,20 @@ function cors(res) {
 }
 
 const BASE_URL = process.env.BASE_URL || 'https://digitalstoreflyer.com';
-const AZURE_KEY = process.env.AZURE_TRANSLATOR_KEY;
-const AZURE_ENDPOINT = process.env.AZURE_TRANSLATOR_ENDPOINT || 'https://api.cognitive.microsofttranslator.com';
-const AZURE_REGION = process.env.AZURE_TRANSLATOR_REGION || '';
+const LIBRE_URL = process.env.LIBRETRANSLATE_URL || 'https://libretranslate.com';
+const LIBRE_KEY = process.env.LIBRETRANSLATE_API_KEY || '';
 
 async function translateToEnglish(text) {
-  if (!text || !AZURE_KEY) return text;
+  if (!text) return text;
   if (/^[a-zA-Z0-9\s.,!?;:'"\-()]+$/.test(text)) return text;
   try {
-    const headers = {
-      'Ocp-Apim-Subscription-Key': AZURE_KEY,
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-    if (AZURE_REGION) headers['Ocp-Apim-Subscription-Region'] = AZURE_REGION;
+    const payload = { q: text, source: 'ar', target: 'en', format: 'text' };
+    if (LIBRE_KEY) payload.api_key = LIBRE_KEY;
 
-    const response = await axios.post(
-      `${AZURE_ENDPOINT}/translate?api-version=3.0&from=ar&to=en`,
-      [{ Text: text }],
-      { headers }
-    );
-    return response.data?.[0]?.translations?.[0]?.text || text;
+    const response = await axios.post(`${LIBRE_URL}/translate`, payload, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+    return response.data?.translatedText || text;
   } catch {
     return text;
   }

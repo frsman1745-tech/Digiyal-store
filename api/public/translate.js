@@ -5,9 +5,8 @@ function cors(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
 }
 
-const AZURE_KEY = process.env.AZURE_TRANSLATOR_KEY;
-const AZURE_ENDPOINT = process.env.AZURE_TRANSLATOR_ENDPOINT || 'https://api.cognitive.microsofttranslator.com';
-const AZURE_REGION = process.env.AZURE_TRANSLATOR_REGION || '';
+const LIBRE_URL = process.env.LIBRETRANSLATE_URL || 'https://libretranslate.com';
+const LIBRE_KEY = process.env.LIBRETRANSLATE_API_KEY || '';
 
 function isArabic(text) {
   return /[\u0600-\u06FF]/.test(text);
@@ -37,25 +36,14 @@ export default async function handler(req, res) {
       return res.status(200).json({ translatedText: text });
     }
 
-    if (!AZURE_KEY) {
-      return res.status(200).json({ translatedText: text, warning: 'Translation API key not configured' });
-    }
+    const payload = { q: text, source: 'ar', target: 'en', format: 'text' };
+    if (LIBRE_KEY) payload.api_key = LIBRE_KEY;
 
-    const headers = {
-      'Ocp-Apim-Subscription-Key': AZURE_KEY,
-      'Content-Type': 'application/json; charset=UTF-8',
-    };
-    if (AZURE_REGION) {
-      headers['Ocp-Apim-Subscription-Region'] = AZURE_REGION;
-    }
+    const response = await axios.post(`${LIBRE_URL}/translate`, payload, {
+      headers: { 'Content-Type': 'application/json' },
+    });
 
-    const response = await axios.post(
-      `${AZURE_ENDPOINT}/translate?api-version=3.0&from=ar&to=en`,
-      [{ Text: text }],
-      { headers }
-    );
-
-    const translatedText = response.data?.[0]?.translations?.[0]?.text || text;
+    const translatedText = response.data?.translatedText || text;
 
     return res.status(200).json({ translatedText });
   } catch (err) {
