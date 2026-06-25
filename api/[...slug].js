@@ -12,13 +12,22 @@ export default async function handler(req, res) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const slug = req.query.slug || [];
-  const path = '/' + slug.join('/');
+  let path;
+  const slug = req.query.slug;
+  if (Array.isArray(slug)) {
+    path = '/' + slug.join('/');
+  } else if (typeof slug === 'string' && slug) {
+    path = '/' + slug;
+  } else if (slug) {
+    path = '/' + String(slug);
+  } else {
+    path = '/' + (req.url || '').split('?')[0].replace(/^\/+/, '').split('/').filter(Boolean).slice(1).join('/');
+  }
 
   if (path === '/health') return healthHandler(req, res);
   if (path.startsWith('/admin')) return adminRouter(path, req, res);
   if (path.startsWith('/store')) return storeRouter(path, req, res);
   if (path.startsWith('/public')) return publicRouter(path, req, res);
 
-  return res.status(404).json({ error: 'Not found' });
+  return res.status(404).json({ error: 'Not found path: ' + path });
 }
