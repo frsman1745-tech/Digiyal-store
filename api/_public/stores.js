@@ -121,22 +121,19 @@ async function handleStoreDetail(req, res) {
 
     await Store.findByIdAndUpdate(store._id, { $inc: { flyerViewCount: 1 } });
 
-    const activeFlyer = await Flyer.findOne({
+    const latestFlyer = await Flyer.findOne({
       storeId: store._id,
-      status: 'active',
-      startDate: { $lte: new Date() },
-      endDate: { $gte: new Date() },
-    }).lean();
+    }).sort({ createdAt: -1 }).lean();
 
     return res.status(200).json({
       store,
-      activeFlyer: activeFlyer
+      activeFlyer: latestFlyer
         ? {
-            _id: activeFlyer._id,
-            templateId: activeFlyer.templateId,
-            startDate: activeFlyer.startDate,
-            endDate: activeFlyer.endDate,
-            productCount: activeFlyer.products ? activeFlyer.products.length : 0,
+            _id: latestFlyer._id,
+            templateId: latestFlyer.templateId,
+            startDate: latestFlyer.startDate,
+            endDate: latestFlyer.endDate,
+            productCount: latestFlyer.products ? latestFlyer.products.length : 0,
           }
         : null,
     });
@@ -162,10 +159,7 @@ async function handleStoreProducts(req, res) {
 
     const activeFlyer = await Flyer.findOne({
       storeId: store._id,
-      status: 'active',
-      startDate: { $lte: new Date() },
-      endDate: { $gte: new Date() },
-    }).select('products templateId').lean();
+    }).sort({ createdAt: -1 }).select('products templateId').lean();
 
     const products = await Product.find({
       storeId: store._id,

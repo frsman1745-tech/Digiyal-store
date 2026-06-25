@@ -61,13 +61,15 @@ export default async function handler(req, res) {
           if (Object.keys(flyerUpdate).length > 0) {
             await Flyer.findByIdAndUpdate(existingFlyer._id, { $set: flyerUpdate });
           }
-        } else if (tId && sDate && eDate) {
+        } else {
+          const now = new Date();
+          const thirtyDays = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
           await Flyer.create({
             storeId: req.storeId,
-            templateId: tId,
-            startDate: new Date(sDate),
-            endDate: new Date(eDate),
-            status: status || (new Date(sDate) <= new Date() && new Date(eDate) >= new Date() ? 'active' : 'scheduled'),
+            templateId: tId || 1,
+            startDate: sDate ? new Date(sDate) : now,
+            endDate: eDate ? new Date(eDate) : thirtyDays,
+            status: status || 'active',
             products: productIds || [],
           });
         }
