@@ -55,28 +55,31 @@ export default function ProductCard({ product }) {
           </div>
         )}
 
-        {product.offerEnd && (
+        {product.offerEndDate && (
           <div className="absolute top-2 left-2 z-10">
-            <OfferCountdown offerEndDate={product.offerEnd} />
+            <OfferCountdown offerEndDate={product.offerEndDate} />
           </div>
         )}
 
         {hasBadges && (
           <div className={`absolute top-2 ${direction === 'rtl' ? 'left-2' : 'right-2'} z-10 flex flex-col gap-1`}>
-            {product.badges.map((badge) => (
-              <span
-                key={badge}
-                className={`px-2 py-0.5 text-[10px] font-bold text-white rounded-lg shadow-sm ${BADGE_COLORS[badge] || 'bg-gray-500'}`}
-              >
-                {t(BADGE_LABELS[badge] || badge)}
-              </span>
-            ))}
+            {product.badges.map((badge, i) => {
+              const type = typeof badge === 'string' ? badge : badge.type;
+              return (
+                <span
+                  key={type || i}
+                  className={`px-2 py-0.5 text-[10px] font-bold text-white rounded-lg shadow-sm ${BADGE_COLORS[type] || 'bg-gray-500'}`}
+                >
+                  {t(BADGE_LABELS[type] || type)}
+                </span>
+              );
+            })}
           </div>
         )}
 
-        {product.bundleType && (
+        {product.bundleDeal?.bundleType && (
           <div className={`absolute bottom-2 ${direction === 'rtl' ? 'right-2' : 'left-2'} z-10 px-2 py-0.5 bg-blue-500/90 text-white text-[10px] font-bold rounded-lg`}>
-            {product.bundleType}
+            {product.bundleDeal.bundleType}
           </div>
         )}
       </div>
@@ -86,9 +89,9 @@ export default function ProductCard({ product }) {
           {product.name}
         </h3>
         <PriceDisplay price={product.price} originalPrice={product.originalPrice} />
-        {product.offerEnd && (
+        {product.offerEndDate && (
           <p className="text-[10px] text-gray-400">
-            {t('product.offerEnds')}: {new Date(product.offerEnd).toLocaleDateString()}
+            {t('product.offerEnds')}: {new Date(product.offerEndDate).toLocaleDateString()}
           </p>
         )}
       </div>

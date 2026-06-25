@@ -167,7 +167,10 @@ async function handleStoreProducts(req, res) {
     const products = await Product.find({
       storeId: store._id,
       isActive: true,
-      offerEndDate: { $gte: new Date() },
+      $or: [
+        { offerEndDate: { $gte: new Date() } },
+        { offerEndDate: null },
+      ],
     }).sort({ isFeaturedOnFlyer: -1, flyerPosition: 1, createdAt: -1 }).lean();
 
     return res.status(200).json({
