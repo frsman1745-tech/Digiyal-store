@@ -1,6 +1,6 @@
-import adminRouter from '../_admin/index.js';
-import storeRouter from '../_store/index.js';
-import publicRouter from '../_public/index.js';
+import adminRouter from './_admin/index.js';
+import storeRouter from './_store/index.js';
+import publicRouter from './_public/index.js';
 
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
