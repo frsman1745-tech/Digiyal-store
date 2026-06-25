@@ -12,7 +12,15 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const slug = req.query.slug || [];
-  const path = '/admin/' + (Array.isArray(slug) ? slug.join('/') : slug);
+  let rest;
+  if (Array.isArray(slug)) {
+    rest = slug.join('/');
+  } else if (typeof slug === 'string' && slug) {
+    rest = slug;
+  } else {
+    rest = (req.url || '').split('?')[0].replace(/^\/+/, '').split('/').filter(Boolean).slice(2).join('/');
+  }
+  const path = '/admin/' + rest;
 
   return router(path, req, res);
 }
