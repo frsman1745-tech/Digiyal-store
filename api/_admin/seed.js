@@ -3,8 +3,10 @@ import Admin from '../models/Admin.js';
 import bcrypt from 'bcryptjs';
 
 function cors(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-seed-key');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
 
 export default async function handler(req, res) {
