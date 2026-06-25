@@ -11,14 +11,16 @@ export default async function handler(req, res) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  let rest;
-  const slug = req.query['...slug'];
+  let rest = '';
+  const slug = req.query['...slug'] || req.query.slug;
   if (Array.isArray(slug)) {
     rest = slug.join('/');
   } else if (typeof slug === 'string' && slug) {
     rest = slug;
   } else {
-    rest = (req.url || '').split('?')[0].replace(/^\/+/, '').split('/').filter(Boolean).slice(2).join('/');
+    const url = (req.url || '').split('?')[0];
+    const m = url.match(/^\/api\/admin\/(.+)$/) || url.match(/^\/admin\/(.+)$/) || url.match(/^\/(.+)$/);
+    if (m) rest = m[1].replace(/\/+$/, '');
   }
 
   const path = '/admin/' + (rest || '');

@@ -20,7 +20,7 @@ export default function RegisterStorePage() {
     setError('');
     try {
       const { default: api } = await import('../../utils/api');
-      await api.post('/registrations', form);
+      await api.post('/public/registrations', form);
       setSuccess(true);
     } catch {
       setError(t('register.error'));
