@@ -12,25 +12,26 @@ function cors(res) {
 }
 
 const BASE_URL = process.env.BASE_URL || 'https://digitalstoreflyer.com';
-const GOOGLE_TRANSLATE_API_KEY = process.env.GOOGLE_TRANSLATE_API_KEY;
+const AZURE_KEY = process.env.AZURE_TRANSLATOR_KEY;
+const AZURE_ENDPOINT = process.env.AZURE_TRANSLATOR_ENDPOINT || 'https://api.cognitive.microsofttranslator.com';
+const AZURE_REGION = process.env.AZURE_TRANSLATOR_REGION || '';
 
 async function translateToEnglish(text) {
-  if (!text || !GOOGLE_TRANSLATE_API_KEY) return text;
+  if (!text || !AZURE_KEY) return text;
   if (/^[a-zA-Z0-9\s.,!?;:'"\-()]+$/.test(text)) return text;
   try {
+    const headers = {
+      'Ocp-Apim-Subscription-Key': AZURE_KEY,
+      'Content-Type': 'application/json; charset=UTF-8',
+    };
+    if (AZURE_REGION) headers['Ocp-Apim-Subscription-Region'] = AZURE_REGION;
+
     const response = await axios.post(
-      'https://translation.googleapis.com/language/translate/v2',
-      {},
-      {
-        params: {
-          q: text,
-          target: 'en',
-          source: 'ar',
-          key: GOOGLE_TRANSLATE_API_KEY,
-        },
-      }
+      `${AZURE_ENDPOINT}/translate?api-version=3.0&from=ar&to=en`,
+      [{ Text: text }],
+      { headers }
     );
-    return response.data?.data?.translations?.[0]?.translatedText || text;
+    return response.data?.[0]?.translations?.[0]?.text || text;
   } catch {
     return text;
   }
