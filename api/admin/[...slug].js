@@ -11,20 +11,17 @@ export default async function handler(req, res) {
   cors(res);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const slug = req.query.slug || [];
-  let rest;
-  if (Array.isArray(slug)) {
-    rest = slug.join('/');
-  } else if (typeof slug === 'string' && slug) {
-    rest = slug;
-  } else {
-    rest = (req.url || '').split('?')[0].replace(/^\/+/, '').split('/').filter(Boolean).slice(2).join('/');
-  }
-  const path = '/admin/' + rest;
+  const url = req.url || '';
+  const slug = req.query.slug;
+  const queryKeys = Object.keys(req.query || {});
 
-  try {
-    return router(path, req, res);
-  } catch (err) {
-    return res.status(500).json({ error: 'Router error: ' + err.message, path, slug, url: req.url });
-  }
+  return res.status(400).json({
+    debug: true,
+    url,
+    slug,
+    slugType: typeof slug,
+    isArray: Array.isArray(slug),
+    queryKeys,
+    method: req.method,
+  });
 }
