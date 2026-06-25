@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PUT') {
-      const regId = req.query.id;
+      const regId = req.query.id || req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
       if (!regId) return res.status(400).json({ error: 'Registration ID required' });
       return requirePermission('manage_registrations')(req, res, () => handleUpdateRegistration(req, res, regId));
     }

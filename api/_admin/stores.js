@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       return requirePermission('manage_stores')(req, res, () => handleCreateStore(req, res));
     }
 
-    const storeId = req.query.id;
+    const storeId = req.query.id || req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
     if (!storeId) return res.status(400).json({ error: 'Store ID required' });
 
     if (req.method === 'PUT') {
