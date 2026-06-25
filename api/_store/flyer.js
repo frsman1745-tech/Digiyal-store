@@ -1,7 +1,7 @@
 import { connectDB } from '../_middleware/db.js';
 import { storeAuth } from '../_middleware/auth.js';
-import Store from '../models/Store.js';
-import Flyer from '../models/Flyer.js';
+import Store from '../_models/Store.js';
+import Flyer from '../_models/Flyer.js';
 
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');

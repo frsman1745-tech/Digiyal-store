@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { connectDB } from './db.js';
-import Store from '../models/Store.js';
-import Admin from '../models/Admin.js';
+import Store from '../_models/Store.js';
+import Admin from '../_models/Admin.js';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const HMAC_KEY = process.env.HMAC_KEY || JWT_SECRET;

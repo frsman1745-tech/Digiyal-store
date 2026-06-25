@@ -1,4 +1,4 @@
-import Admin from '../models/Admin.js';
+import Admin from '../_models/Admin.js';
 
 export function requireRole(...roles) {
   return (req, res, next) => {

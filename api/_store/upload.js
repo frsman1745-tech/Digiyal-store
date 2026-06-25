@@ -1,6 +1,6 @@
 import { connectDB } from '../_middleware/db.js';
 import { storeAuth } from '../_middleware/auth.js';
-import Store from '../models/Store.js';
+import Store from '../_models/Store.js';
 import cloudinary from 'cloudinary';
 
 function getCloudinary() {

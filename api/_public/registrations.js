@@ -1,6 +1,6 @@
 import { connectDB } from '../_middleware/db.js';
-import StoreRegistration from '../models/StoreRegistration.js';
-import { getSettings } from '../models/PlatformSettings.js';
+import StoreRegistration from '../_models/StoreRegistration.js';
+import { getSettings } from '../_models/PlatformSettings.js';
 
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');

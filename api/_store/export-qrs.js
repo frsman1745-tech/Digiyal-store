@@ -1,6 +1,6 @@
 import { connectDB } from '../_middleware/db.js';
 import { storeAuth } from '../_middleware/auth.js';
-import Product from '../models/Product.js';
+import Product from '../_models/Product.js';
 import QRCode from 'qrcode';
 import JSZip from 'jszip';
 

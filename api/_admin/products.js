@@ -1,8 +1,8 @@
 import { connectDB } from '../_middleware/db.js';
 import { adminAuth } from '../_middleware/auth.js';
 import { requirePermission } from '../_middleware/permissions.js';
-import Product from '../models/Product.js';
-import Store from '../models/Store.js';
+import Product from '../_models/Product.js';
+import Store from '../_models/Store.js';
 
 function cors(res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET,DELETE,OPTIONS');

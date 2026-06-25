@@ -1,7 +1,7 @@
 import { connectDB } from '../_middleware/db.js';
 import { storeAuth } from '../_middleware/auth.js';
-import Store from '../models/Store.js';
-import Product from '../models/Product.js';
+import Store from '../_models/Store.js';
+import Product from '../_models/Product.js';
 
 function cors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');

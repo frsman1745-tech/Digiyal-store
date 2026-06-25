@@ -1,8 +1,8 @@
 import { connectDB } from '../_middleware/db.js';
 import { adminAuth } from '../_middleware/auth.js';
 import { requirePermission } from '../_middleware/permissions.js';
-import Store from '../models/Store.js';
-import AdminLog from '../models/AdminLog.js';
+import Store from '../_models/Store.js';
+import AdminLog from '../_models/AdminLog.js';
 import { Resend } from 'resend';
 
 function cors(res) {

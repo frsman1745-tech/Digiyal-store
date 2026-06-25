@@ -1,7 +1,7 @@
 import { connectDB } from '../_middleware/db.js';
 import { adminAuth } from '../_middleware/auth.js';
 import { requireSuperAdmin } from '../_middleware/permissions.js';
-import Admin from '../models/Admin.js';
+import Admin from '../_models/Admin.js';
 import bcrypt from 'bcryptjs';
 
 function cors(res) {

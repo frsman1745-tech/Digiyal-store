@@ -1,7 +1,7 @@
 import { connectDB } from '../_middleware/db.js';
 import { adminAuth } from '../_middleware/auth.js';
 import { requirePermission } from '../_middleware/permissions.js';
-import Flyer from '../models/Flyer.js';
+import Flyer from '../_models/Flyer.js';
 
 function cors(res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS');

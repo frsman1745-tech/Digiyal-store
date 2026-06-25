@@ -1,6 +1,6 @@
 import { connectDB } from '../_middleware/db.js';
-import Store from '../models/Store.js';
-import Product from '../models/Product.js';
+import Store from '../_models/Store.js';
+import Product from '../_models/Product.js';
 
 const BASE_URL = process.env.BASE_URL || 'https://digitalstoreflyer.com';
 

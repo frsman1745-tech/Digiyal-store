@@ -1,6 +1,6 @@
 import { connectDB } from '../_middleware/db.js';
 import { generateToken, rateLimiter } from '../_middleware/auth.js';
-import StoreAccount from '../models/StoreAccount.js';
+import StoreAccount from '../_models/StoreAccount.js';
 import bcrypt from 'bcryptjs';
 
 function cors(res) {

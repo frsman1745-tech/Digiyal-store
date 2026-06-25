@@ -1,10 +1,10 @@
 import { connectDB } from '../_middleware/db.js';
 import { adminAuth } from '../_middleware/auth.js';
 import { requirePermission } from '../_middleware/permissions.js';
-import StoreRegistration from '../models/StoreRegistration.js';
-import Store from '../models/Store.js';
-import StoreAccount from '../models/StoreAccount.js';
-import AdminLog from '../models/AdminLog.js';
+import StoreRegistration from '../_models/StoreRegistration.js';
+import Store from '../_models/Store.js';
+import StoreAccount from '../_models/StoreAccount.js';
+import AdminLog from '../_models/AdminLog.js';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import { Resend } from 'resend';
