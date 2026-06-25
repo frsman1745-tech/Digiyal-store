@@ -37,41 +37,39 @@ export default async function handler(req, res) {
         const sDate = startDate || currentFlyerStart;
         const eDate = endDate || currentFlyerEnd;
 
-        const updateData = {};
-        if (tId !== undefined) {
-          if (tId < 1 || tId > 5) {
-            return res.status(400).json({ error: 'Template must be between 1 and 5' });
+        if (tId !== undefined && (tId < 1 || tId > 5)) {
+          return res.status(400).json({ error: 'Template must be between 1 and 5' });
+        }
+
+        const storeUpdate = {};
+        if (tId !== undefined) storeUpdate.selectedTemplate = tId;
+        if (sDate !== undefined) storeUpdate.currentFlyerStart = sDate;
+        if (eDate !== undefined) storeUpdate.currentFlyerEnd = eDate;
+        if (Object.keys(storeUpdate).length > 0) {
+          await Store.findByIdAndUpdate(req.storeId, { $set: storeUpdate });
+        }
+
+        const existingFlyer = await Flyer.findOne({ storeId: req.storeId }).sort({ createdAt: -1 }).lean();
+
+        if (existingFlyer) {
+          const flyerUpdate = {};
+          if (tId !== undefined) flyerUpdate.templateId = tId;
+          if (sDate !== undefined) flyerUpdate.startDate = new Date(sDate);
+          if (eDate !== undefined) flyerUpdate.endDate = new Date(eDate);
+          if (status !== undefined) flyerUpdate.status = status;
+          if (productIds !== undefined) flyerUpdate.products = productIds;
+          if (Object.keys(flyerUpdate).length > 0) {
+            await Flyer.findByIdAndUpdate(existingFlyer._id, { $set: flyerUpdate });
           }
-          updateData.selectedTemplate = tId;
-        }
-
-        if (sDate !== undefined) updateData.currentFlyerStart = sDate;
-        if (eDate !== undefined) updateData.currentFlyerEnd = eDate;
-
-        if (Object.keys(updateData).length > 0) {
-          await Store.findByIdAndUpdate(req.storeId, { $set: updateData });
-        }
-
-        if (tId && sDate && eDate) {
-          const flyerData = {
+        } else if (tId && sDate && eDate) {
+          await Flyer.create({
             storeId: req.storeId,
             templateId: tId,
             startDate: new Date(sDate),
             endDate: new Date(eDate),
             status: status || (new Date(sDate) <= new Date() && new Date(eDate) >= new Date() ? 'active' : 'scheduled'),
             products: productIds || [],
-          };
-
-          const existingActive = await Flyer.findOne({
-            storeId: req.storeId,
-            status: 'active',
-          }).lean();
-
-          if (existingActive) {
-            await Flyer.findByIdAndUpdate(existingActive._id, { $set: flyerData });
-          } else {
-            await Flyer.create(flyerData);
-          }
+          });
         }
 
         const store = await Store.findById(req.storeId).select('selectedTemplate currentFlyerStart currentFlyerEnd').lean();
