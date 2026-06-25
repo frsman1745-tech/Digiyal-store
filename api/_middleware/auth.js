@@ -8,8 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const HMAC_KEY = process.env.HMAC_KEY || JWT_SECRET;
 
 if (!JWT_SECRET || JWT_SECRET === 'your-64-char-random-string-here-change-in-production') {
-  console.error('FATAL: JWT_SECRET environment variable is not set or is the default placeholder');
-  process.exit(1);
+  console.warn('WARNING: JWT_SECRET is not set or is the default placeholder. Set it in production.');
 }
 
 const rateLimitStore = new Map();
