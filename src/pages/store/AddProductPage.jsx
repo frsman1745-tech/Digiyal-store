@@ -76,8 +76,8 @@ export default function AddProductPage() {
       const dataUrl = imageFile.dataUrl || await fileToDataUrl(imageFile);
       const res = await api.post('/store/upload', { image: dataUrl });
       setImageUrl(res.data.url || res.data.imageUrl);
-    } catch {
-      setError('فشل رفع الصورة');
+    } catch (err) {
+      setError(err.response?.data?.message || err.response?.data?.error || 'فشل رفع الصورة');
     }
     setUploading(false);
   };

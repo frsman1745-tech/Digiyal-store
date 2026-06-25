@@ -35,7 +35,7 @@ export default function StoreOnboardingModal({ open, onComplete }) {
       const compressed = await compressImage(file);
       const res = await api.post('/store/upload', { image: compressed.dataUrl });
       setProfile((p) => ({ ...p, logo: res.data.url || res.data.imageUrl }));
-    } catch {}
+    } catch (err) { console.error('Logo upload failed:', err.response?.data || err.message); }
   };
 
   const handleProductImage = async (e) => {
@@ -46,7 +46,7 @@ export default function StoreOnboardingModal({ open, onComplete }) {
       const compressed = await compressImage(file);
       const res = await api.post('/store/upload', { image: compressed.dataUrl });
       setProduct((p) => ({ ...p, image: res.data.url || res.data.imageUrl }));
-    } catch {}
+    } catch (err) { console.error('Product image upload failed:', err.response?.data || err.message); }
   };
 
   const saveStep1 = async () => {

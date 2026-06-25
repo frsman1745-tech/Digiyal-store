@@ -4,12 +4,22 @@ import Store from '../_models/Store.js';
 import cloudinary from 'cloudinary';
 
 function getCloudinary() {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+  const apiKey = process.env.CLOUDINARY_API_KEY;
+  const apiSecret = process.env.CLOUDINARY_API_SECRET;
+
+  if (!cloudName || cloudName === 'your_cloud_name') {
+    throw new Error('CLOUDINARY_CLOUD_NAME is not set in environment variables');
+  }
+  if (!apiKey || apiKey === 'your_api_key') {
+    throw new Error('CLOUDINARY_API_KEY is not set in environment variables');
+  }
+  if (!apiSecret || apiSecret === 'your_api_secret') {
+    throw new Error('CLOUDINARY_API_SECRET is not set in environment variables');
+  }
+
   const v2 = cloudinary.v2;
-  v2.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
+  v2.config({ cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret });
   return v2;
 }
 
