@@ -48,13 +48,16 @@ export default async function handler(req, res) {
   await connectDB();
 
   return storeAuth(req, res, async () => {
-    const productId = req.query.id || req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
-
-    if (req.method === 'GET' && productId && req.url.includes('/qr')) {
-      return handleGetProductQR(req, res);
-    }
+    const rawId = req.query.id || req.url.split('?')[0].replace(/\/+$/, '').split('/').pop();
+    const productId = rawId && /^[0-9a-fA-F]{24}$/.test(rawId) ? rawId : null;
 
     if (req.method === 'GET') {
+      if (productId && req.url.includes('/qr')) {
+        return handleGetProductQR(req, res);
+      }
+      if (productId) {
+        return handleGetProduct(req, res, productId);
+      }
       return handleListProducts(req, res);
     }
 
@@ -95,6 +98,16 @@ async function handleListProducts(req, res) {
       products,
       pagination: { page, limit, total, pages: Math.ceil(total / limit) },
     });
+  } catch (err) {
+    return res.status(500).json({ error: 'Server error', message: err.message });
+  }
+}
+
+async function handleGetProduct(req, res, productId) {
+  try {
+    const product = await Product.findOne({ _id: productId, storeId: req.storeId }).lean();
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+    return res.status(200).json({ product });
   } catch (err) {
     return res.status(500).json({ error: 'Server error', message: err.message });
   }
